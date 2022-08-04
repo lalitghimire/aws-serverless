@@ -10,9 +10,9 @@ export class AwsCrudServerlessStack extends Stack {
         super(scope, id, props);
 
         // database setup
-        const taskTable = new dynamodb.Table(this, 'tasks', {
+        const taskTable = new dynamodb.Table(this, 'tasksTable', {
             partitionKey: { name: 'id', type: dynamodb.AttributeType.STRING },
-            tableName: 'tasks',
+            tableName: 'tasksTable',
             removalPolicy: RemovalPolicy.DESTROY,
         });
 
@@ -20,19 +20,26 @@ export class AwsCrudServerlessStack extends Stack {
         const taskApi = new RestApi(this, 'tasksApi');
 
         // lambda functions
-        const createTask = new NodejsFunction(this, 'createExercises', {
+        const createTask = new NodejsFunction(this, 'createTask', {
             entry: join(__dirname, '..', 'functions', 'createTask.ts'),
+            handler: 'handler',
+        });
+        const readTasks = new NodejsFunction(this, 'readTasks', {
+            entry: join(__dirname, '..', 'functions', 'readTasks.ts'),
             handler: 'handler',
         });
 
         // dynamodb permission to the lambda functions
         taskTable.grantWriteData(createTask);
+        taskTable.grantReadData(readTasks);
 
         // api-lambda integration
         const createTaskIntegration = new LambdaIntegration(createTask);
+        const readTaskIntegration = new LambdaIntegration(readTasks);
 
         // create routes
         const taskResources = taskApi.root.addResource('tasks');
         taskResources.addMethod('POST', createTaskIntegration);
+        taskResources.addMethod('GET', readTaskIntegration);
     }
 }
