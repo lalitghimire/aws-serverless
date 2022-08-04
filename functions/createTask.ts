@@ -3,7 +3,7 @@ import { v4 as uuid } from 'uuid';
 import { APIGatewayProxyEvent, APIGatewayProxyResult, Context } from 'aws-lambda';
 
 const dbClient = new DynamoDB.DocumentClient();
-const TABLE = 'tasks';
+const TABLE = 'tasksTable';
 
 async function handler(
     event: APIGatewayProxyEvent,
