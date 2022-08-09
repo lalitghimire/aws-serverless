@@ -25,7 +25,7 @@ async function handler(
     } catch (error: any) {
         result.body = error.message;
     }
-    result.body = JSON.stringify(`create item with id: ${task.id}`);
+    result.body = JSON.stringify(`created task with id: ${task.id}`);
     return result;
 }
 

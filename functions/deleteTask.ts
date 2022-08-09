@@ -30,7 +30,7 @@ async function handler(
         if (!deleteResult.Attributes) {
             throw new Error('Cannot delete item. Check exercise id');
         } else {
-            result.body = JSON.stringify(`exercise with id ${taskId} has been deleted`);
+            result.body = JSON.stringify(`task with id ${taskId} has been deleted`);
         }
     } catch (error: any) {
         result.statusCode = 400;
