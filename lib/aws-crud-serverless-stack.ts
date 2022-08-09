@@ -28,18 +28,25 @@ export class AwsCrudServerlessStack extends Stack {
             entry: join(__dirname, '..', 'functions', 'readTasks.ts'),
             handler: 'handler',
         });
+        const deleteTask = new NodejsFunction(this, 'deleteTask', {
+            entry: join(__dirname, '..', 'functions', 'deleteTask.ts'),
+            handler: 'handler',
+        });
 
         // dynamodb permission to the lambda functions
         taskTable.grantWriteData(createTask);
         taskTable.grantReadData(readTasks);
+        taskTable.grantReadData(deleteTask);
 
         // api-lambda integration
         const createTaskIntegration = new LambdaIntegration(createTask);
         const readTaskIntegration = new LambdaIntegration(readTasks);
+        const deleteTaskIntegration = new LambdaIntegration(deleteTask);
 
         // create routes
         const taskResources = taskApi.root.addResource('tasks');
         taskResources.addMethod('POST', createTaskIntegration);
         taskResources.addMethod('GET', readTaskIntegration);
+        taskResources.addMethod('DELETE', deleteTaskIntegration);
     }
 }
