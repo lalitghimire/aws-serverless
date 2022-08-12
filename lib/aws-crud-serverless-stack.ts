@@ -1,13 +1,49 @@
-import { RemovalPolicy, Stack, StackProps } from 'aws-cdk-lib';
+import { CfnOutput, RemovalPolicy, Stack, StackProps } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { join } from 'path';
 import { LambdaIntegration, RestApi } from 'aws-cdk-lib/aws-apigateway';
+import * as cognito from 'aws-cdk-lib/aws-cognito';
+import { UserPoolClientIdentityProvider } from 'aws-cdk-lib/aws-cognito';
 
 export class AwsCrudServerlessStack extends Stack {
     constructor(scope: Construct, id: string, props?: StackProps) {
         super(scope, id, props);
+
+        // Cognito userpool and userpool client setup
+        const userPool = new cognito.UserPool(this, 'tasksUserPool', {
+            userPoolName: 'tasksUserPool',
+            selfSignUpEnabled: true,
+            signInAliases: {
+                email: true,
+            },
+            autoVerify: {
+                email: true,
+            },
+            passwordPolicy: {
+                minLength: 6,
+            },
+        });
+
+        const userPoolClient = new cognito.UserPoolClient(this, 'UserPoolClient', {
+            userPool,
+            generateSecret: false,
+            supportedIdentityProviders: [UserPoolClientIdentityProvider.COGNITO],
+            authFlows: {
+                adminUserPassword: true,
+                custom: true,
+                userSrp: true,
+            },
+        });
+
+        // required outputs after creating userpool and userpoolclient
+        new CfnOutput(this, 'userPoolId', {
+            value: userPool.userPoolId,
+        });
+        new CfnOutput(this, 'userPoolClientId', {
+            value: userPoolClient.userPoolClientId,
+        });
 
         // database setup
         const taskTable = new dynamodb.Table(this, 'tasksTable', {
