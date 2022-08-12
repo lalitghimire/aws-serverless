@@ -1,0 +1,23 @@
+@endpoint= ' your api endpoint you get after deoloying' 
+###
+POST {{endpoint}}/tasks/
+Content-Type: application/json
+
+{
+    "task": "third task"
+ }
+
+###
+GET {{endpoint}}/tasks/
+
+
+###
+DELETE {{endpoint}}/tasks?id= 
+
+
+###
+PUT {{endpoint}}/tasks?id=
+
+{
+    "task": "don't do it again"
+}
